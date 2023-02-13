@@ -1,0 +1,11 @@
+﻿  allocate.c
+  ConnectedSet.c
+  LinkedList.c
+  Pixel.c
+  randlib.c
+C:\github\ConnectedComponents\src\randlib.c(7,6): warning C4273: 'exit': inconsistent dll linkage
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22000.0\ucrt\stdlib.h(56,48): message : see previous definition of 'exit'
+  solve.c
+  tiff.c
+  Generating Code...
+  HW5.vcxproj -> C:\github\Eigen\HW5\x64\Debug\HW5.exe
