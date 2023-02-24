@@ -5,7 +5,10 @@ from PIL import Image
 from numpy import linalg as LA
 
 def generate_w(p, n):
-    ret_w = np.random.normal(size = (p, n))
+    ret_w = np.zeros((p, n))
+    for cur_col in range(0, p):
+        for cur_row in range(0,n):
+            ret_w[cur_col][cur_row] = np.random.normal()
     print(ret_w.shape[0], ret_w.shape[1])
     return ret_w
 
@@ -16,7 +19,7 @@ def scatter_plot(W, X_tilde, X):
     plt.show()
     plt.clf()
     plt.plot(X_tilde[0,:], X_tilde[1,:], '.')
-    plt.title('X~ Scatter Plot')
+    plt.title('X tilde Scatter Plot')
     plt.show()
     plt.clf()
     plt.plot(X[0,:], X[1,:], '.')
@@ -31,7 +34,12 @@ def calculate_x_tilde(W, R):
     l = np.array([[np.sqrt(w[0]), 0], [0, np.sqrt(w[1])]])
     print(l)
     ret_X_tilde = np.zeros_like(W)
-    ret_X_tilde = np.matmul(l, W)
+    #for cur_col in range(0, W.shape[0]):
+    #    for cur_row in range(0,W.shape[1]):
+    #        ret_X_tilde[cur_col][cur_row] = W[cur_col][cur_row]*np.sqrt(w[cur_col])
+
+    ret_X_tilde = np.dot(l, W)
+
     print(W[1][999],ret_X_tilde[1][999])
     #for cur_col in range(0, W.shape[0]):
     #    ret_X_tilde[cur_col] = np.sqrt(w[cur_col])*W[cur_col]
