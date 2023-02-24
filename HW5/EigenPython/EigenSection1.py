@@ -15,14 +15,17 @@ def generate_w(p, n):
 def scatter_plot(W, X_tilde, X):
     plt.clf()
     plt.plot(W[0,:], W[1,:],'.')
+    plt.axis('equal')
     plt.title('W Scatter Plot')
     plt.show()
     plt.clf()
     plt.plot(X_tilde[0,:], X_tilde[1,:], '.')
+    plt.axis('equal')
     plt.title('X tilde Scatter Plot')
     plt.show()
     plt.clf()
     plt.plot(X[0,:], X[1,:], '.')
+    plt.axis('equal')
     plt.title('X Scatter Plot')
     plt.show()
     plt.clf()
@@ -60,3 +63,4 @@ X_tilde = calculate_x_tilde(W, R)
 X = calculate_x(X_tilde, R)
 # Produce scatter plots
 scatter_plot(W, X_tilde, X)
+# Estimate covariance
