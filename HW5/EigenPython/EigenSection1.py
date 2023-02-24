@@ -2,66 +2,53 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import numpy as np
 from PIL import Image
+from numpy import linalg as LA
 
 def generate_w(p, n):
-    ret_w = np.random.rand(p, n)
+    ret_w = np.random.normal(size = (p, n))
     print(ret_w.shape[0], ret_w.shape[1])
     return ret_w
 
-def equalize(X):
-    x = np.array(X)
-    print(x.shape[0], x.shape[1])
-    F_x = np.ndarray(shape=(256,))
-    F_xtot = np.ndarray(shape=(256,))
-    N,test_bins,patches = plt.hist(x.flatten(), bins=np.linspace(0,255,256))
-    F_total = 0
-    for cur_bin in range(0,255):
-        F_total = F_total + N[cur_bin]
-        F_xtot[cur_bin] = F_total
-    # Handle last element.  For some reason N does not extend to element 255
-    #print('F_total', F_total)
-    for cur_bin in range(0,256):
-        F_x[cur_bin] = F_xtot[cur_bin]/F_total
-    x_axis = np.linspace(0,255,256)
-    F_x[255] = 1.0
-##    plt.clf()
-##    plt.xlabel("i")
-##    plt.ylabel("Fx[i]")
-##    plt.title("Cumulative Distribution Function")    
-##    plt.plot(F_x)
-##    plt.show()
-    # Find Ymin and Ymax.  Set them to the max, min respectively
-    Ymin = 1.0
-    Ymax = 0.0
-    image_len = x.flatten().size
-    x_flat = x.flatten()
-    #print(image_len)
-    for cur_pixel in range(0,image_len):
-        if (Ymin > F_x[x_flat[cur_pixel]]):
-            Ymin = F_x[x_flat[cur_pixel]]
-        if (Ymax < F_x[x_flat[cur_pixel]]):
-            Ymax = F_x[x_flat[cur_pixel]]
-    print('Ymin:', Ymin)
-    print('Ymax:', Ymax)
-    #Initialize the equalized image
-    x_eq = np.array(X)
-    num_rows = x.shape[0]
-    num_cols = x.shape[1]
-    for cur_row in range(0,num_rows):
-         for cur_col in range(0, num_cols):
-             x_eq[cur_row][cur_col] = (255*(F_x[x[cur_row][cur_col]] - Ymin))/(Ymax -Ymin)
-    gray = cm.get_cmap('gray', 256)
+def scatter_plot(W, X_tilde, X):
     plt.clf()
-    plt.imshow(x_eq, cmap=gray);
-    plt.show()
-
-def scatter_plot(W):
     plt.plot(W[0,:], W[1,:],'.')
     plt.title('W Scatter Plot')
     plt.show()
-        
+    plt.clf()
+    plt.plot(X_tilde[0,:], X_tilde[1,:], '.')
+    plt.title('X~ Scatter Plot')
+    plt.show()
+    plt.clf()
+    plt.plot(X[0,:], X[1,:], '.')
+    plt.title('X Scatter Plot')
+    plt.show()
+    plt.clf()
 
+def calculate_x_tilde(W, R):
+    w, v = LA.eig(R)
+    print(w)
+    print(v)
+    l = np.array([[np.sqrt(w[0]), 0], [0, np.sqrt(w[1])]])
+    print(l)
+    ret_X_tilde = np.zeros_like(W)
+    ret_X_tilde = np.matmul(l, W)
+    print(W[1][999],ret_X_tilde[1][999])
+    #for cur_col in range(0, W.shape[0]):
+    #    ret_X_tilde[cur_col] = np.sqrt(w[cur_col])*W[cur_col]
+    return ret_X_tilde
+
+def calculate_x(X_t, R):
+    w, v = LA.eig(R)
+    ret_X = np.zeros_like(X_t)
+    ret_X = np.matmul(v, X_t)
+    return ret_X
+
+R = np.array([[2, -1.2], [-1.2, 1]])
 # Generate W
 W = generate_w(2, 1000)
+# Calculate X_tilde
+X_tilde = calculate_x_tilde(W, R)
+# Calculate X
+X = calculate_x(X_tilde, R)
 # Produce scatter plots
-scatter_plot(W)
+scatter_plot(W, X_tilde, X)
