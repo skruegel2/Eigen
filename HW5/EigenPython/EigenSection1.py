@@ -9,7 +9,6 @@ def generate_w(n, p):
     for cur_col in range(0, n):
         for cur_row in range(0,p):
             ret_w[cur_col][cur_row] = np.random.normal()
-    print(ret_w.shape[0], ret_w.shape[1])
     return ret_w
 
 def scatter_plot(W, X_tilde, X):
@@ -56,11 +55,15 @@ def calculate_mean(X, u_hat):
 def estimate_covariance(X):
     u_hat = []
     # Calculate mean
-    print(X[0][0], X[1][0])
     u_hat = calculate_mean(X, u_hat)
-    print(u_hat[0])
-    # Calculate covariance
-    #R_hat = np.zeros(X.shape[0], X.shape[0])
+    # Calculate Z
+    Z = X
+    for cur_row in range(0,Z.shape[1]):
+        for cur_col in range(0, Z.shape[0]):
+            Z[cur_col][cur_row] = Z[cur_col][cur_row] - u_hat[cur_row]    
+    R_hat = np.zeros((X.shape[1], X.shape[1]))
+    R_hat = np.matmul(Z,np.transpose(Z))
+    R_hat = R_hat * 1/(X.shape[1] - 1)
     #u_hat = calculate_mean(X, u_hat)
     #for cur_col in range(0, X.shape[0]):
     #    X_i = np.zeros(1, X.shape[1])
@@ -68,7 +71,7 @@ def estimate_covariance(X):
     #        X_i[cur_row] = X[cur_col][cur_row] - u_hat[cur_col]
     #    X_i_t  
 
-    return X
+    return R_hat
 
 R = np.array([[2, -1.2], [-1.2, 1]])
 # Generate W
