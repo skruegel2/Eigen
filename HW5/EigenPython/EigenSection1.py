@@ -43,13 +43,13 @@ def calculate_x(X_t, R):
     return ret_X
 
 def calculate_mean(X, u_hat):
-    # Sum each row
-    for cur_row in range(0,X.shape[1]):
+    # Sum each column
+    for cur_col in range(0, X.shape[0]):
         u_hat.append(0)
-        for cur_col in range(0, X.shape[0]):
-            u_hat[cur_row] = u_hat[cur_row] + X[cur_col][cur_row]
-        # Divide each row by the number of columns
-        u_hat[cur_row] = u_hat[cur_row]/X.shape[0]
+        for cur_row in range(0,X.shape[1]):
+            u_hat[cur_col] = u_hat[cur_col] + X[cur_col][cur_row]
+        # Divide each col by the number of rows
+        u_hat[cur_col] = u_hat[cur_col]/X.shape[1]
     return u_hat
 
 def estimate_covariance(X):
@@ -58,19 +58,13 @@ def estimate_covariance(X):
     u_hat = calculate_mean(X, u_hat)
     # Calculate Z
     Z = X
-    for cur_row in range(0,Z.shape[1]):
-        for cur_col in range(0, Z.shape[0]):
-            Z[cur_col][cur_row] = Z[cur_col][cur_row] - u_hat[cur_row]    
-    R_hat = np.zeros((X.shape[1], X.shape[1]))
+    for cur_col in range(0, X.shape[0]):
+        for cur_row in range(0,X.shape[1]):
+            Z[cur_col][cur_row] = Z[cur_col][cur_row] - u_hat[cur_col]
+    R_hat = np.zeros((X.shape[0], X.shape[0]))
     R_hat = np.matmul(Z,np.transpose(Z))
-    R_hat = R_hat * 1/(X.shape[1] - 1)
-    #u_hat = calculate_mean(X, u_hat)
-    #for cur_col in range(0, X.shape[0]):
-    #    X_i = np.zeros(1, X.shape[1])
-    #    for cur_row in range(0,X.shape[1]):
-    #        X_i[cur_row] = X[cur_col][cur_row] - u_hat[cur_col]
-    #    X_i_t  
-
+    R_hat = R_hat * 1/(X.shape[1] - 1)  
+    print(R_hat)
     return R_hat
 
 R = np.array([[2, -1.2], [-1.2, 1]])
