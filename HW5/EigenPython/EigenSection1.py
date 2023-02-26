@@ -10,8 +10,14 @@ def generate_w(n, p):
         for cur_row in range(0,p):
             ret_w[cur_col][cur_row] = np.random.normal()
     return ret_w
+def scatter_plot(X, title):
+    plt.clf()
+    plt.plot(X[0,:], X[1,:],'.')
+    plt.axis('equal')
+    plt.title(title)
+    plt.show()
 
-def scatter_plot(W, X_tilde, X):
+def scatter_plot_three(W, X_tilde, X):
     plt.clf()
     plt.plot(W[0,:], W[1,:],'.')
     plt.axis('equal')
@@ -64,8 +70,19 @@ def estimate_covariance(X):
     R_hat = np.zeros((X.shape[0], X.shape[0]))
     R_hat = np.matmul(Z,np.transpose(Z))
     R_hat = R_hat * 1/(X.shape[1] - 1)  
-    print(R_hat)
     return R_hat
+
+def compute_X_hat(X, R_hat):
+    w, v = LA.eig(R_hat)
+    X_hat = np.matmul(np.transpose(v), X)
+    return X_hat
+
+def compute_W(X_hat, R_hat):
+    w, v = LA.eig(R_hat)
+    w = np.power(w, -0.5)
+    l = np.array([[w[0], 0], [0, w[1]]])
+    W_new = np.dot(l, X_hat)
+    return W_new
 
 R = np.array([[2, -1.2], [-1.2, 1]])
 # Generate W
@@ -75,7 +92,16 @@ X_tilde = calculate_x_tilde(W, R)
 # Calculate X
 X = calculate_x(X_tilde, R)
 # Produce scatter plots
-#scatter_plot(W, X_tilde, X)
+#scatter_plot_three(W, X_tilde, X)
 # Estimate covariance
-X = W
 R_hat = estimate_covariance(X)
+#print(R_hat)
+# Compute X hat
+X_hat = compute_X_hat(X, R_hat)
+# Compute W new
+W_new = compute_W(X_hat, R_hat)
+scatter_plot(X_hat, 'X Hat')
+scatter_plot(W_new, 'W')
+# Estimate covariance
+R_w = estimate_covariance(W_new)
+print(R_w)
