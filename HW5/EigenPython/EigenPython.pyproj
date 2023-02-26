@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>4cbd693a-65ae-46f1-9784-e9a6cc685e18</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>EigenSection1.py</StartupFile>
+    <StartupFile>EigenSection4.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,7 +21,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="EigenSection1.py" />
+    <Compile Include="EigenSection4.py" />
+    <Compile Include="read_data.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

@@ -20,7 +20,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 # The following are strings used to assemble the data file names
-datadir='.'    # directory where the data files reside
+datadir='./training_data'    # directory where the data files reside
 dataset=['arial','bookman_old_style','century','comic_sans_ms','courier_new',
   'fixed_sys','georgia','microsoft_sans_serif','palatino_linotype',
   'shruti','tahoma','times_new_roman']
@@ -63,6 +63,7 @@ def display_samples(X,ch):
 
     """
     ind = ord(ch)-ord('a')
+
     fig, axs = plt.subplots(3, 4)
     for k in range(len(dataset)):
         img=np.reshape(X[:,26*(k-1)+ind],(64,64))
@@ -74,3 +75,4 @@ def display_samples(X,ch):
 if __name__ == "__main__":
     X = read_data()
     display_samples(X,'t')
+    plt.show()
