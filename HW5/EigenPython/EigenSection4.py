@@ -168,20 +168,49 @@ def divide_n_1(X):
 
 def plot_12_largest_values(Z):
     U, s, vh = np.linalg.svd(Z,full_matrices = True)
-    print(U.shape[0],U.shape[1])
     display_sample_at_index(U,0)
     plt.show()
-    #Y = np.matmul(np.transpose(U),Z)
-    #X_hat = np.matmul(U,Y)
-    #display_sample_at_index(X_hat,0)
-    #plt.show()
+
+def plot_projection_coeff(X, Z):
+    U, s, vh = np.linalg.svd(Z,full_matrices = False)
+    Y = np.matmul(np.transpose(U), X)
+    print(Y.shape[0], Y.shape[1])
+    a = []
+    for y_index in range(10):
+        #print(Y[y_index][0])
+        a.append(Y[y_index][0])
+    b = []
+    for y_index in range(10):
+        #print(Y[y_index][0])
+        b.append(Y[y_index][1])
+    c = []
+    for y_index in range(10):
+        #print(Y[y_index][0])
+        c.append(Y[y_index][2])
+    d = []
+    for y_index in range(10):
+        #print(Y[y_index][0])
+        d.append(Y[y_index][3])
+    # data to be plotted
+    x = np.arange(1, 11)
+    plt.title("First 10 Proj Coeff")
+    plt.xlabel("Coefficient Number")
+    plt.ylabel("Proj Coeff Value")
+    plt.plot(x, a)
+    plt.plot(x, b)
+    plt.plot(x, c)
+    plt.plot(x, d)
+    plt.legend(['a', 'b', 'c', 'd'])
+    plt.show()
 
 X = read_data()
 #display_samples(X,'a')
 #plt.show()
-X = subtract_mean(X)
-Z = divide_n_1(X)
-plot_12_largest_values(Z)
+X_minus_mean = subtract_mean(X)
+Z = divide_n_1(X_minus_mean)
+#plot_12_largest_values(Z)
+plot_projection_coeff(X_minus_mean, Z)
+
 #R = np.array([[2, -1.2], [-1.2, 1]])
 ## Generate W
 #W = generate_w(2, 1000)
