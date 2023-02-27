@@ -177,8 +177,9 @@ def plot_12_largest_values(Z):
 
 def plot_projection_coeff(X, Z):
     U, s, vh = np.linalg.svd(Z,full_matrices = False)
+    print(U.shape[0], U.shape[1])
     Y = np.matmul(np.transpose(U), X)
-    print(Y.shape[0], Y.shape[1])
+    #print(Y.shape[0], Y.shape[1])
     a = []
     for y_index in range(10):
         #print(Y[y_index][0])
@@ -207,21 +208,36 @@ def plot_projection_coeff(X, Z):
     plt.legend(['a', 'b', 'c', 'd'])
     plt.show()
 
-def synthesize(X, Z, num_eigen):
-    U, s, vh = np.linalg.svd(Z,full_matrices = False)
-    print("Ushape:",U.shape[0], U.shape[1])
-    U_k = np.zeros((U.shape[0],1))
-    X_hat = np.zeros((U.shape[0],1))
-    print("U_k shape:", U_k.shape[0],U_k.shape[1])
-    for m in range(num_eigen):
-        for row_index in range(U.shape[0]):
-            U_k[row_index][m] = U[row_index][m]
-        X_hat = X_hat + np.matmul(U_k,np.matmul(np.transpose(U_k), X[:,0]))
-    print("X_hat shape:", X_hat.shape[0])
-    display_combination(X_hat)
+#def synthesize(X, Z, num_eigen):
+#    U, s, vh = np.linalg.svd(Z,full_matrices = False)
+#    print("Ushape:",U.shape[0], U.shape[1])
+#    U_k = np.zeros((U.shape[0],1))
+#    X_hat = np.zeros((U.shape[0],1))
+#    print("U_k shape:", U_k.shape[0],U_k.shape[1])
+#    for m in range(num_eigen):
+#        for row_index in range(U.shape[0]):
+#            U_k[row_index][0] = U[row_index][m]
+#        X_hat = X_hat + np.matmul(U_k,np.matmul(np.transpose(U_k), X[:,0]))
+#    print("X_hat shape:", X_hat.shape[0])
+#    display_combination(X_hat)
     #X_m = np.matmul(U_m, Y)
 
-#    X_hat = np.matmul(np.transpose(U), Y)
+def synthesize(X, Z, num_eigen):
+    u_hat = []
+    # Calculate mean
+    u_hat = calculate_mean(X, u_hat)
+    X_minus_mean = subtract_mean(X)
+    U, s, vh = np.linalg.svd(Z,full_matrices = False)
+    #print("Ushape:",U.shape[0], U.shape[1])
+    U_m = np.zeros((U.shape[0],num_eigen))
+    for m in range(num_eigen):
+        for row_index in range(U.shape[0]):
+            U_m[row_index][m] = U[row_index][m]
+    Y = np.matmul(np.transpose(U_m),X_minus_mean)
+    X_hat = np.matmul(U_m, Y)
+    X_hat = X_hat + u_hat[0]
+    #print("X_hat shape:", X_hat.shape[0])
+    display_combination(X_hat)
 
 X = read_data()
 #display_samples(X,'a')
@@ -229,8 +245,8 @@ X = read_data()
 X_minus_mean = subtract_mean(X)
 Z = divide_n_1(X_minus_mean)
 #plot_12_largest_values(Z)
-#plot_projection_coeff(X_minus_mean, Z)
-synthesize(X_minus_mean, Z, 1)
+plot_projection_coeff(X_minus_mean, Z)
+#synthesize(X, Z, 1)
 
 
 #R = np.array([[2, -1.2], [-1.2, 1]])
