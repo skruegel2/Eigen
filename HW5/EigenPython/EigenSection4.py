@@ -162,7 +162,7 @@ def display_sample_at_index(X,index):
         axs[k//4,k%4].imshow(img,cmap=plt.cm.gray, interpolation='none') 
         axs[k//4,k%4].set_title(k)
 def display_combination(X_hat):
-    img=np.reshape(X[:,0],(64,64))
+    img=np.reshape(X_hat[:,0],(64,64))
     plt.imshow(img,cmap=plt.cm.gray, interpolation='none')
     plt.show()
 
@@ -236,7 +236,7 @@ def synthesize(X, Z, num_eigen):
     Y = np.matmul(np.transpose(U_m),X_minus_mean)
     X_hat = np.matmul(U_m, Y)
     X_hat = X_hat + u_hat[0]
-    #print("X_hat shape:", X_hat.shape[0])
+    print("X_hat shape:", X_hat.shape[0], X_hat.shape[1])
     display_combination(X_hat)
 
 X = read_data()
@@ -245,8 +245,8 @@ X = read_data()
 X_minus_mean = subtract_mean(X)
 Z = divide_n_1(X_minus_mean)
 #plot_12_largest_values(Z)
-plot_projection_coeff(X_minus_mean, Z)
-#synthesize(X, Z, 1)
+#plot_projection_coeff(X_minus_mean, Z)
+synthesize(X, Z, 30)
 
 
 #R = np.array([[2, -1.2], [-1.2, 1]])
