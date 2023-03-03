@@ -21,6 +21,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="EigenSection1.py" />
+    <Compile Include="EigenSection2.py" />
     <Compile Include="EigenSection4.py" />
     <Compile Include="read_data.py" />
   </ItemGroup>

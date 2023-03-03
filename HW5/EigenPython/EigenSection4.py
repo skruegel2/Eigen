@@ -208,20 +208,6 @@ def plot_projection_coeff(X, Z):
     plt.legend(['a', 'b', 'c', 'd'])
     plt.show()
 
-#def synthesize(X, Z, num_eigen):
-#    U, s, vh = np.linalg.svd(Z,full_matrices = False)
-#    print("Ushape:",U.shape[0], U.shape[1])
-#    U_k = np.zeros((U.shape[0],1))
-#    X_hat = np.zeros((U.shape[0],1))
-#    print("U_k shape:", U_k.shape[0],U_k.shape[1])
-#    for m in range(num_eigen):
-#        for row_index in range(U.shape[0]):
-#            U_k[row_index][0] = U[row_index][m]
-#        X_hat = X_hat + np.matmul(U_k,np.matmul(np.transpose(U_k), X[:,0]))
-#    print("X_hat shape:", X_hat.shape[0])
-#    display_combination(X_hat)
-    #X_m = np.matmul(U_m, Y)
-
 def synthesize(X, Z, num_eigen):
     u_hat = []
     # Calculate mean
@@ -236,8 +222,21 @@ def synthesize(X, Z, num_eigen):
     Y = np.matmul(np.transpose(U_m),X_minus_mean)
     X_hat = np.matmul(U_m, Y)
     X_hat = X_hat + u_hat[0]
-    print("X_hat shape:", X_hat.shape[0], X_hat.shape[1])
-    display_combination(X_hat)
+    #print("X_hat shape:", X_hat.shape[0], X_hat.shape[1])
+    #display_combination(X_hat)
+    return X_hat
+
+# Display six synthesized images with different numbers of eigenvalues
+def display_synthesized(X,Z):
+    fig, axs = plt.subplots(2,3)
+    num_eigenvalues = [1,5,10,15,20,30]
+    for k in range(6):
+        X_hat = synthesize(X, Z, num_eigenvalues[k])
+        img=np.reshape(X_hat[:,0],(64,64))
+        axs[k//3,k%3].imshow(img,cmap=plt.cm.gray, interpolation='none')
+        axs[k//3,k%3].set_title(num_eigenvalues[k])
+    plt.imshow(img,cmap=plt.cm.gray,interpolation='none')
+    plt.show()
 
 X = read_data()
 #display_samples(X,'a')
@@ -246,27 +245,5 @@ X_minus_mean = subtract_mean(X)
 Z = divide_n_1(X_minus_mean)
 #plot_12_largest_values(Z)
 #plot_projection_coeff(X_minus_mean, Z)
-synthesize(X, Z, 30)
+display_synthesized(X, Z)
 
-
-#R = np.array([[2, -1.2], [-1.2, 1]])
-## Generate W
-#W = generate_w(2, 1000)
-## Calculate X_tilde
-#X_tilde = calculate_x_tilde(W, R)
-## Calculate X
-#X = calculate_x(X_tilde, R)
-## Produce scatter plots
-##scatter_plot_three(W, X_tilde, X)
-## Estimate covariance
-#R_hat = estimate_covariance(X)
-##print(R_hat)
-## Compute X hat
-#X_hat = compute_X_hat(X, R_hat)
-## Compute W new
-#W_new = compute_W(X_hat, R_hat)
-#scatter_plot(X_hat, 'X Hat')
-#scatter_plot(W_new, 'W')
-## Estimate covariance
-#R_w = estimate_covariance(W_new)
-#print(R_w)
