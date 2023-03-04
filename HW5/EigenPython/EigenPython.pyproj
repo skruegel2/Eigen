@@ -24,6 +24,7 @@
     <Compile Include="EigenSection1.py" />
     <Compile Include="EigenSection2.py" />
     <Compile Include="EigenSection4.py" />
+    <Compile Include="EigenSection5.py" />
     <Compile Include="read_data.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

@@ -238,6 +238,19 @@ def display_synthesized(X,Z):
     plt.imshow(img,cmap=plt.cm.gray,interpolation='none')
     plt.show()
 
+def compute_eigenvectors(X):
+    u_hat = []
+    # Calculate mean
+    u_hat = calculate_mean(X, u_hat)
+    X_minus_mean = subtract_mean(X)
+    U, s, vh = np.linalg.svd(X_minus_mean,full_matrices = False)
+    return U
+
+def form_A(U,num_eigen):
+    A = np.zeros((U.shape[0],num_eigen))
+    for m in range(num_eigen):
+        for row_index in range(U.shape[0]):
+            A[row_index][m] = U[row_index][m]
 X = read_data()
 #display_samples(X,'a')
 #plt.show()
@@ -245,7 +258,12 @@ X_minus_mean = subtract_mean(X)
 Z = divide_n_1(X_minus_mean)
 #plot_12_largest_values(Z)
 #plot_projection_coeff(X_minus_mean, Z)
-display_combination(X)
-plt.show()
-display_synthesized(X, Z)
+#display_combination(X)
+#plt.show()
+#display_synthesized(X, Z)
+# Section 5
+# Compute eigenvectors
+U = compute_eigenvectors(X)
+# Form A from largest 10 eigenvectors
+A = form_A(U,10)
 
