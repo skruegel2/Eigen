@@ -265,7 +265,7 @@ def compute_eigenvectors(X):
     X_minus_mean = subtract_global_mean(X,u_hat)
     Z = divide_n_1(X_minus_mean)
     U, s, vh = np.linalg.svd(Z,full_matrices = False)
-    return U
+    return U, u_hat
 
 def form_A(U,num_eigen):
     A = np.zeros((U.shape[0],num_eigen))
@@ -295,15 +295,58 @@ def calculate_class_var(Y, u_k):
     # Step through classes
     for class_idx in range(26):
         for train_idx in range(12):
-            class_var[:,:,class_idx] += np.matmul((Y[:,(26*train_idx)+class_idx] - u_k[:,class_idx]),np.transpose(Y[:,(26*train_idx)+class_idx] - u_k[:,class_idx]))
+            class_var[:,:,class_idx] += np.outer((Y[:,(26*train_idx)+class_idx] - u_k[:,class_idx]),Y[:,(26*train_idx)+class_idx] - u_k[:,class_idx])
         class_var[:,:,class_idx] /= (12 - 1)
-    print("Class var shape: ", class_var.shape[0], class_var.shape[1], class_var.shape[2])
+    # Check for invertibility
+    test_rk = np.zeros((10,10))
+    for row_idx in range(10):
+        for col_idx in range(10):
+            test_rk[row_idx, col_idx] = class_var[row_idx,col_idx,0];
+    #print("Inverse",np.linalg.inv(test_rk))
     return class_var 
 
 def compute_class_means_covariances(Y):
     class_mean = calculate_class_means(Y)
     class_var = calculate_class_var(Y, class_mean)
     return class_mean, class_var
+
+testdir='./test_data'
+testset=['veranda']
+def read_test_data():
+    Rows=64    # all images are 64x64
+    Cols=64
+    n=len(testset)*len(datachar)  # total number of images
+    p=Rows*Cols   # number of pixels
+
+    X=np.zeros((p,n))  # images arranged in columns of X
+    k=0
+    for dset in testset:
+        for ch in datachar:
+            fname='/'.join([testdir,dset,ch])+'.tif'
+            im=Image.open(fname)
+            img = np.array(im)
+            X[:,k]=np.reshape(img,(1,p))
+            k+=1
+    return X
+
+def classify_image(Y, class_mean, class_var, image_index):
+    k_star_min = 1000000
+    k_star_min_idx = 0
+    for class_index in range(26):
+        r_k = class_var[:,:,class_index]
+        r_k_inv = np.linalg.inv(class_var[:,:,class_index])
+        Y_minus_class_mean = Y[:,image_index] - class_mean[:,class_index]        
+        rhs = np.matmul(r_k_inv,Y_minus_class_mean)
+        k_star = np.matmul(np.transpose(Y_minus_class_mean),rhs) + np.log(np.linalg.det(r_k))
+        if k_star < k_star_min:
+            k_star_min = k_star
+            k_star_min_idx = class_index
+    if (image_index != k_star_min_idx):
+        print(image_index, k_star_min_idx, k_star_min)
+
+def classify_images(Y,class_mean, class_var):
+    for test_idx in range(26):
+        classify_image(Y, class_mean, class_var, test_idx)
 
 X = read_data()
 #display_samples(X,'a')
@@ -317,14 +360,16 @@ Z = divide_n_1(X_minus_mean)
 #display_synthesized(X, Z)
 # Section 5
 # Compute eigenvectors
-U = compute_eigenvectors(X)
+U, u_hat = compute_eigenvectors(X)
 #print("Ushape", U.shape[0],U.shape[1])
 # Form A from largest 10 eigenvectors
 A = form_A(U,10)
 # Calculate Y
 Y = calculate_y(X, A)
-#print("YShape",Y.shape[0],Y.shape[1])
 # Compute class means and covariances
-
 class_mean, class_var = compute_class_means_covariances(Y)
-params = []
+X_test = read_test_data()
+X_test_minus_mean = subtract_global_mean(X_test,u_hat)
+Y_c = np.matmul(np.transpose(A),X_test_minus_mean)
+#print("Y_c:",Y_c.shape[0],Y_c.shape[1])
+classify_images(Y_c, class_mean, class_var)
