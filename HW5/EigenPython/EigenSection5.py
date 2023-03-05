@@ -161,6 +161,7 @@ def display_sample_at_index(X,index):
 
         axs[k//4,k%4].imshow(img,cmap=plt.cm.gray, interpolation='none') 
         axs[k//4,k%4].set_title(k)
+
 def display_combination(X_hat):
     img=np.reshape(X_hat[:,0],(64,64))
     plt.imshow(img,cmap=plt.cm.gray, interpolation='none')
@@ -238,12 +239,32 @@ def display_synthesized(X,Z):
     plt.imshow(img,cmap=plt.cm.gray,interpolation='none')
     plt.show()
 
+def compute_global_mean(X):
+    global_mean = []
+    # Create a single column to hold accumulated images
+    for row_idx in range(X.shape[0]):
+        global_mean.append(0)
+    for col_idx in range(X.shape[1]):
+        for row_idx in range(X.shape[0]):
+            global_mean[row_idx] = global_mean[row_idx] + X[row_idx][col_idx]
+    # Now divide by the number of columns
+    for row_idx in range(X.shape[0]):
+        global_mean[row_idx] = global_mean[row_idx] / X.shape[1]
+    return global_mean
+
+def subtract_global_mean(X, u_hat):
+    X_minus_mean = X
+    for col_idx in range(X.shape[1]):
+        for row_idx in range(X.shape[0]):
+            X_minus_mean[row_idx][col_idx] = X_minus_mean[row_idx][col_idx] - u_hat[row_idx]
+    return X_minus_mean
+
 def compute_eigenvectors(X):
-    u_hat = []
-    # Calculate mean
-    u_hat = calculate_mean(X, u_hat)
-    X_minus_mean = subtract_mean(X)
-    U, s, vh = np.linalg.svd(X_minus_mean,full_matrices = False)
+    # Calculate global mean
+    u_hat = compute_global_mean(X)  
+    X_minus_mean = subtract_global_mean(X,u_hat)
+    Z = divide_n_1(X_minus_mean)
+    U, s, vh = np.linalg.svd(Z,full_matrices = False)
     return U
 
 def form_A(U,num_eigen):
@@ -251,6 +272,39 @@ def form_A(U,num_eigen):
     for m in range(num_eigen):
         for row_index in range(U.shape[0]):
             A[row_index][m] = U[row_index][m]
+    return A
+
+def calculate_y(X, A):
+    # Calculate global mean
+    u_hat = compute_global_mean(X)  
+    X_minus_mean = subtract_global_mean(X,u_hat)
+    Y = np.matmul(np.transpose(A),X_minus_mean)
+    return Y
+
+def calculate_class_means(Y):
+    u_k = np.zeros((10,26))
+    # Handle each class
+    for class_idx in range(26):
+        for train_idx in range(12):
+            u_k[:,class_idx] += Y[:, (26*train_idx) + class_idx]        
+        u_k[:,class_idx] /= 12
+    return u_k   
+
+def calculate_class_var(Y, u_k):
+    class_var = np.zeros((10, 10, 26))
+    # Step through classes
+    for class_idx in range(26):
+        for train_idx in range(12):
+            class_var[:,:,class_idx] += np.matmul((Y[:,(26*train_idx)+class_idx] - u_k[:,class_idx]),np.transpose(Y[:,(26*train_idx)+class_idx] - u_k[:,class_idx]))
+        class_var[:,:,class_idx] /= (12 - 1)
+    print("Class var shape: ", class_var.shape[0], class_var.shape[1], class_var.shape[2])
+    return class_var 
+
+def compute_class_means_covariances(Y):
+    class_mean = calculate_class_means(Y)
+    class_var = calculate_class_var(Y, class_mean)
+    return class_mean, class_var
+
 X = read_data()
 #display_samples(X,'a')
 #plt.show()
@@ -264,6 +318,13 @@ Z = divide_n_1(X_minus_mean)
 # Section 5
 # Compute eigenvectors
 U = compute_eigenvectors(X)
+#print("Ushape", U.shape[0],U.shape[1])
 # Form A from largest 10 eigenvectors
 A = form_A(U,10)
+# Calculate Y
+Y = calculate_y(X, A)
+#print("YShape",Y.shape[0],Y.shape[1])
+# Compute class means and covariances
 
+class_mean, class_var = compute_class_means_covariances(Y)
+params = []
