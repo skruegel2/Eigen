@@ -340,11 +340,58 @@ def classify_image(Y, class_mean, class_var, image_index):
             k_star_min = k_star
             k_star_min_idx = class_index
     if (image_index != k_star_min_idx):
-        print(image_index, k_star_min_idx, k_star_min)
+        print(datachar[image_index], datachar[k_star_min_idx], k_star_min)
 
 def classify_images(Y,class_mean, class_var):
     for test_idx in range(26):
         classify_image(Y, class_mean, class_var, test_idx)
+
+def classify_image_lambda_k(Y, class_mean, class_var, image_index):
+    k_star_min = 1000000
+    k_star_min_idx = 0
+    for class_index in range(26):
+        r_k = class_var[:,:,class_index]
+        b_k = np.diag(np.diag(r_k))
+        b_k_inv = np.linalg.inv(b_k)
+    #    r_k_inv = np.linalg.inv(class_var[:,:,class_index])
+        Y_minus_class_mean = Y[:,image_index] - class_mean[:,class_index]        
+        rhs = np.matmul(b_k_inv,Y_minus_class_mean)
+        k_star = np.matmul(np.transpose(Y_minus_class_mean),rhs) + np.log(np.linalg.det(b_k))
+        if k_star < k_star_min:
+            k_star_min = k_star
+            k_star_min_idx = class_index
+    if (image_index != k_star_min_idx):
+        print(datachar[image_index], datachar[k_star_min_idx], k_star_min)
+
+def classify_images_lambda_k(Y,class_mean, class_var):
+    for test_idx in range(26):
+        classify_image_lambda_k(Y, class_mean, class_var, test_idx)
+
+def compute_avg_var(class_var):
+    R_wc = np.zeros((10,10))
+    for class_idx in range(26):
+        R_wc += class_var[:,:,class_idx]
+    R_wc /= 26
+    return R_wc
+
+def classify_image_R_wc(Y, class_mean, class_var, image_index):
+    k_star_min = 1000000
+    k_star_min_idx = 0
+    for class_index in range(26):
+        b_k = compute_avg_var(class_var)
+        b_k_inv = np.linalg.inv(b_k)
+        Y_minus_class_mean = Y[:,image_index] - class_mean[:,class_index]        
+        rhs = np.matmul(b_k_inv,Y_minus_class_mean)
+        k_star = np.matmul(np.transpose(Y_minus_class_mean),rhs) + np.log(np.linalg.det(b_k))
+        if k_star < k_star_min:
+            k_star_min = k_star
+            k_star_min_idx = class_index
+    if (image_index != k_star_min_idx):
+        print(datachar[image_index], datachar[k_star_min_idx], k_star_min)
+
+def classify_images_R_wc(Y_c, class_mean, class_var):
+    for test_idx in range(26):
+        classify_image_R_wc(Y, class_mean, class_var, test_idx)
 
 X = read_data()
 #display_samples(X,'a')
@@ -370,4 +417,6 @@ X_test = read_test_data()
 X_test_minus_mean = subtract_global_mean(X_test,u_hat)
 Y_c = np.matmul(np.transpose(A),X_test_minus_mean)
 #print("Y_c:",Y_c.shape[0],Y_c.shape[1])
-classify_images(Y_c, class_mean, class_var)
+#classify_images(Y_c, class_mean, class_var)
+#classify_images_lambda_k(Y_c, class_mean, class_var)
+classify_images_R_wc(Y_c, class_mean, class_var)
