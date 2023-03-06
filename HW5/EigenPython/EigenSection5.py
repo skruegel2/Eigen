@@ -240,17 +240,15 @@ def display_synthesized(X,Z):
     plt.show()
 
 def compute_global_mean(X):
-    global_mean = []
-    # Create a single column to hold accumulated images
+    u_k = []
     for row_idx in range(X.shape[0]):
-        global_mean.append(0)
+        u_k.append(0)
     for col_idx in range(X.shape[1]):
         for row_idx in range(X.shape[0]):
-            global_mean[row_idx] = global_mean[row_idx] + X[row_idx][col_idx]
-    # Now divide by the number of columns
-    for row_idx in range(X.shape[0]):
-        global_mean[row_idx] = global_mean[row_idx] / X.shape[1]
-    return global_mean
+            u_k[row_idx] += X[row_idx,col_idx]
+    for row_idx in range(X.shape[0]): 
+        u_k[row_idx] /= X.shape[1]
+    return u_k
 
 def subtract_global_mean(X, u_hat):
     X_minus_mean = X
@@ -351,8 +349,8 @@ def classify_images(Y,class_mean, class_var):
 X = read_data()
 #display_samples(X,'a')
 #plt.show()
-X_minus_mean = subtract_mean(X)
-Z = divide_n_1(X_minus_mean)
+#X_minus_mean = subtract_mean(X)
+#Z = divide_n_1(X_minus_mean)
 #plot_12_largest_values(Z)
 #plot_projection_coeff(X_minus_mean, Z)
 #display_combination(X)
